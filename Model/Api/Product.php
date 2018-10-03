@@ -376,6 +376,12 @@ class Product
                 }
             }
 
+            $this->_helper->log(
+                'PRODUCT INFO ' . $product->getSku() . ' (id: ' . $product->getId(
+                ) . ')  info: price - ' . $product->getPrice() . ', special price - ' . $product->getSpecialPrice(
+                ) . ', data price -  ' . $data['price']
+            );
+
             //stock
             $stock = $this->_stockRegistry->getStockItem($product->getId(), $magentoStoreId);
             $data["inventory_quantity"] = (int)$stock->getQty();
