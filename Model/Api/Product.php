@@ -15,8 +15,15 @@ namespace Ebizmarts\MailChimp\Model\Api;
 class Product
 {
     const DOWNLOADABLE = 'downloadable';
+    const J2TGIFTVOUCHER = 'j2tgiftvoucher';
     const PRODUCTIMAGE = 'product_small_image';
     const MAX = 100;
+    private const ALLOWABLE_PRODUCT_TYPES = [
+        \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
+        \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL,
+        self::DOWNLOADABLE,
+        self::J2TGIFTVOUCHER,
+    ];
 
     protected $_parentImage = null;
     protected $_childtUrl   = null;
@@ -163,16 +170,16 @@ class Product
             ['gt'=>0], 'left'
         )->addAttributeToFilter(
             'special_from_date',['or' => [ 0 => ['date' => true,
-            'to' => date('Y-m-d',time()).' 23:59:59'],
-            1 => ['is' => new \Zend_Db_Expr(
-                'null'
-            )],]], 'left'
+                                                 'to' => date('Y-m-d',time()).' 23:59:59'],
+                                           1 => ['is' => new \Zend_Db_Expr(
+                                               'null'
+                                           )],]], 'left'
         )->addAttributeToFilter(
             'special_to_date',  ['or' => [ 0 => ['date' => true,
-            'from' => date('Y-m-d',time()).' 00:00:00'],
-            1 => ['is' => new \Zend_Db_Expr(
-                'null'
-            )],]], 'left'
+                                                 'from' => date('Y-m-d',time()).' 00:00:00'],
+                                           1 => ['is' => new \Zend_Db_Expr(
+                                               'null'
+                                           )],]], 'left'
         );
         $collection->getSelect()->joinLeft(['mc' => $collection->getTable('mailchimp_sync_ecommerce')],
             "mc.type = 'PRO' AND mc.related_id = e.entity_id AND mc.mailchimp_sync_modified = 0 ".$collection->getConnection()->quoteInto(" AND  mc.mailchimp_store_id = ?",$mailchimpStoreId) ." and mc.mailchimp_sync_delta <  at_special_from_date.value");
@@ -190,7 +197,7 @@ class Product
             ['gt'=>0], 'left'
         )->addAttributeToFilter(
             'special_to_date',  ['or' => [ 0 => ['date' => true,
-            'to' => date('Y-m-d',time()).' 00:00:00'],
+                                                 'to' => date('Y-m-d',time()).' 00:00:00'],
         ]], 'left'
         );
         $collection2->getSelect()->joinLeft(['mc' => $collection2->getTable('mailchimp_sync_ecommerce')],
@@ -234,6 +241,9 @@ class Product
             case self::DOWNLOADABLE:
                 $variantProducts[] = $product;
                 break;
+            case self::J2TGIFTVOUCHER:
+                $variantProducts[] = $product;
+                break;
             default:
                 return [];
         }
@@ -262,9 +272,7 @@ class Product
     ) {
         $operations = [];
         $variantProducts = [];
-        if ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE ||
-            $product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL ||
-            $product->getTypeId() == "downloadable") {
+        if ($this->checkIsAllowedProduct($product->getTypeId())) {
             $data = $this-> _buildProductData($product, $magentoStoreId);
             $variantProducts [] = $product;
             // $parentIds = $product->getTypeInstance()->getParentIdsByChild($product->getId());
@@ -439,9 +447,7 @@ class Product
                 }
             }
             if ($this->_childtUrl) {
-                if ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE ||
-                    $product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL ||
-                    $product->getTypeId() == "downloadable") {
+                if ($this->checkIsAllowedProduct($product->getTypeId())) {
                     $data["url"] = $this->_childtUrl;
                 }
                 $this->_childtUrl = null;
@@ -560,5 +566,11 @@ class Product
             $sync_error,
             $sync_modified
         );
+    }
+
+    /** @param string $productType */
+    private function checkIsAllowedProduct(string $productType): bool
+    {
+        return in_array($productType, self::ALLOWABLE_PRODUCT_TYPES);
     }
 }
