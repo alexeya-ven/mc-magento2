@@ -71,6 +71,9 @@ class Subscriber
             "OR (m4m.mailchimp_sync_delta > '".$this->_helper->getMCMinSyncDateFlag().
             "' and m4m.mailchimp_sync_modified = 1)");
         $collection->getSelect()->limit(self::BATCH_LIMIT);
+
+        $this->_helper->log($collection->getSelect()->__toString());
+
         $subscriberArray = array();
         $date = $this->_helper->getDateMicrotime();
         $batchId = \Ebizmarts\MailChimp\Helper\Data::IS_SUBSCRIBER . '_' . $date;
