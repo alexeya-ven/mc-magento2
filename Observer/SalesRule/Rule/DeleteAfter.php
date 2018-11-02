@@ -41,6 +41,8 @@ class DeleteAfter implements \Magento\Framework\Event\ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        /* Added by VEN Commerce to fix issue with generation big amout of promocodes using Amasty FreeGift module */
+        return;
         $rule = $observer->getEvent()->getRule();
         $ruleId = $rule->getRuleId();
         $this->_helper->markEcommerceAsDeleted($ruleId,\Ebizmarts\MailChimp\Helper\Data::IS_PROMO_RULE);

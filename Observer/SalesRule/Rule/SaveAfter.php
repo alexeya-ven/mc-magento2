@@ -46,6 +46,9 @@ class SaveAfter implements \Magento\Framework\Event\ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        /* Added by VEN Commerce to fix issue with generation big amout of promocodes using Amasty FreeGift module */
+        return;
+
         /**
          * @var $rule \Magento\SalesRule\Model\Rule
          */

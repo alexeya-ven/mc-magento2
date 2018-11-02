@@ -712,6 +712,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
     public function saveEcommerceData($storeId, $entityId, $type, $date = null, $error = null , $modified = null, $deleted = null, $token = null)
     {
+        /* Added by VEN Commerce to fix issue with generation big amout of promocodes using Amasty FreeGift module */
+        if(in_array($type, [self::IS_PROMO_RULE, self::IS_PROMO_CODE])) {
+            return;
+        }
 
         $chimpSyncEcommerce = $this->getChimpSyncEcommerce($storeId, $entityId, $type);
         if($chimpSyncEcommerce->getRelatedId()==$entityId||!$chimpSyncEcommerce->getRelatedId()&&$modified!=1) {
