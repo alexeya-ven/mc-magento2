@@ -57,7 +57,7 @@ class Webhook
         \Ebizmarts\MailChimp\Model\ResourceModel\MailChimpWebhookRequest\CollectionFactory $webhookCollection,
         \Magento\Customer\Model\CustomerFactory $customer
     ) {
-    
+
         $this->_helper              = $helper;
         $this->_subscriberFactory   = $subscriberFactory;
         $this->_webhookCollection   = $webhookCollection;
@@ -79,27 +79,31 @@ class Webhook
          * @var $item \Ebizmarts\MailChimp\Model\MailChimpWebhookRequest
          */
         foreach ($collection as $item) {
-            $data = unserialize($item->getDataRequest());
-            $stores = $this->_helper->getMagentoStoreIdsByListId($data['list_id']);
-            if(count($stores)) {
-                switch ($item->getType()) {
-                    case self::TYPE_SUBSCRIBE:
-                        $this->_subscribe($data);
-                        break;
-                    case self::TYPE_UNSUBSCRIBE:
-                        $this->_unsubscribe($data);
-                        break;
-                    case self::TYPE_CLEANED:
-                        $this->_clean($data);
-                        break;
-                    case self::TYPE_UPDATE_EMAIL:
-                        $this->_updateEmail($data);
-                        break;
-                    case self::TYPE_PROFILE:
-                        $this->_profile($data);
+            try {
+                $data   = unserialize($item->getDataRequest());
+                $stores = $this->_helper->getMagentoStoreIdsByListId($data['list_id']);
+                if (count($stores)) {
+                    switch ($item->getType()) {
+                        case self::TYPE_SUBSCRIBE:
+                            $this->_subscribe($data);
+                            break;
+                        case self::TYPE_UNSUBSCRIBE:
+                            $this->_unsubscribe($data);
+                            break;
+                        case self::TYPE_CLEANED:
+                            $this->_clean($data);
+                            break;
+                        case self::TYPE_UPDATE_EMAIL:
+                            $this->_updateEmail($data);
+                            break;
+                        case self::TYPE_PROFILE:
+                            $this->_profile($data);
+                    }
+                    $processed = self::PROCESSED_OK;
+                } else {
+                    $processed = self::PROCESSED_WITH_ERROR;
                 }
-                $processed = self::PROCESSED_OK;
-            } else {
+            } catch (\Exception $e) {
                 $processed = self::PROCESSED_WITH_ERROR;
             }
             $item->setProcessed($processed);
