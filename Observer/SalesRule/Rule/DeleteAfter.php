@@ -41,6 +41,8 @@ class DeleteAfter implements \Magento\Framework\Event\ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        /** Added by VEN to prevent syncing of promo-rules, coupons - DM-765 */
+        return;
         $rule = $observer->getEvent()->getRule();
         $ruleId = $rule->getRuleId();
         $this->_helper->markEcommerceAsDeleted($ruleId,\Ebizmarts\MailChimp\Helper\Data::IS_PROMO_RULE);

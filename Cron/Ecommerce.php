@@ -190,13 +190,14 @@ class Ecommerce
             $carts = $this->_apiCart->createBatchJson($storeId);
             $results = array_merge($results, $carts);
 
-            $this->_helper->log('Generate Rules payload');
-            $rules = $this->_apiPromoRules->sendRules($storeId);
-            $results = array_merge($results, $rules);
-
-            $this->_helper->log('Generate Coupons payload');
-            $coupons = $this->_apiPromoCodes->sendCoupons($storeId);
-            $results = array_merge($results, $coupons);
+            /** Commented by VEN to disable syncing of promo rules and coupons - DM-765 */
+//            $this->_helper->log('Generate Rules payload');
+//            $rules = $this->_apiPromoRules->sendRules($storeId);
+//            $results = array_merge($results, $rules);
+//
+//            $this->_helper->log('Generate Coupons payload');
+//            $coupons = $this->_apiPromoCodes->sendCoupons($storeId);
+//            $results = array_merge($results, $coupons);
         }
 
         if (!empty($results)) {

@@ -46,6 +46,8 @@ class SaveAfter implements \Magento\Framework\Event\ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        /** Added by VEN to prevent syncing of promo-rules, coupons - DM-765 */
+        return;
         /**
          * @var $rule \Magento\SalesRule\Model\Rule
          */
